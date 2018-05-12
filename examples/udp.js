@@ -1,4 +1,4 @@
-const { Udp } = require('.')
+const { Udp } = require('..')
 
 async function serverMain () {
   let server = new Udp()

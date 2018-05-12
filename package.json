@@ -2,7 +2,7 @@
   "name": "nuv",
   "version": "1.0.0",
   "description": "N-API bindings for subset of libuv",
-  "main": "index.js",
+  "main": "src/nuv.js",
   "author": "Tim Caswell <tim@creationix.com>",
   "license": "MIT",
   "dependencies": {

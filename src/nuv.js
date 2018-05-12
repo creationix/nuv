@@ -243,6 +243,7 @@ class Udp extends Handle {
   }
 }
 
+exports.bindings = bindings
 exports.Server = Server
 exports.Client = Client
 exports.Udp = Udp

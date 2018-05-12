@@ -1,4 +1,4 @@
-const { Client } = require('.')
+const { Client } = require('..')
 
 let messages = [ 'Hello', 'How are you', 'Goodbye' ]
 

@@ -1,4 +1,4 @@
-const { Server } = require('.')
+const { Server } = require('..')
 
 // Easy server creation with chainable methods.
 console.log('Listening:', new Server({ onConnection })
