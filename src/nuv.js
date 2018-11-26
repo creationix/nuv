@@ -8,6 +8,7 @@ const {
   sizeof_uv_shutdown_t,
   sizeof_uv_write_t,
   sizeof_uv_udp_send_t,
+  sizeof_uv_timer_t,
   // TCP Functions
   nuv_tcp_init,
   nuv_tcp_nodelay,
@@ -31,6 +32,14 @@ const {
   nuv_udp_send,
   nuv_udp_recv_start,
   nuv_udp_recv_stop,
+  // Timer Functions
+  nuv_timer_init,
+  nuv_timer_start,
+  nuv_timer_stop,
+  nuv_timer_again,
+  nuv_timer_set_repeat,
+  nuv_timer_get_repeat,
+
   // Handle Functions
   nuv_close
 } = bindings
@@ -151,8 +160,8 @@ class Socket extends Tcp {
     return {
       next: () => new Promise((resolve, reject) => {
         this.read().then(
-          value => resolve({value}),
-          err => err.code === 'EOF' ? resolve({done: true}) : reject(err)
+          value => resolve({ value }),
+          err => err.code === 'EOF' ? resolve({ done: true }) : reject(err)
         )
       })
     }
@@ -235,7 +244,7 @@ class Udp extends Handle {
     return {
       next: () => new Promise((resolve, reject) => {
         this.recv().then(
-          value => resolve({value}),
+          value => resolve({ value }),
           err => reject(err)
         )
       })
@@ -247,3 +256,36 @@ exports.bindings = bindings
 exports.Server = Server
 exports.Client = Client
 exports.Udp = Udp
+
+exports.setTimeout = function setTimeout (fn, ms = 0, ...args) {
+  let handle = Buffer.alloc(sizeof_uv_tcp_t)
+  let timer = {
+    handle,
+    onTimeout () {
+      nuv_close(handle)
+      fn(...args)
+    }
+  }
+  nuv_timer_init(handle, timer)
+  nuv_timer_start(handle, ms, ms)
+  return timer
+}
+
+exports.clearTimeout = function clearTimeout ({ handle }) {
+  nuv_close(handle)
+}
+
+exports.setInterval = function setInterval (fn, ms = 0, ...args) {
+  let handle = Buffer.alloc(sizeof_uv_tcp_t)
+  let timer = {
+    handle,
+    onTimeout () {
+      fn(...args)
+    }
+  }
+  nuv_timer_init(handle, timer)
+  nuv_timer_start(handle, ms, ms)
+  return timer
+}
+
+exports.clearInterval = exports.clearTimeout
