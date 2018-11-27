@@ -252,40 +252,38 @@ class Udp extends Handle {
   }
 }
 
+class Timer extends Handle {
+  constructor (handlers) {
+    super()
+    for (const key in handlers) {
+      this[key] = handlers[key]
+    }
+    nuv_timer_init(Buffer.alloc(sizeof_uv_timer_t), this)
+  }
+
+  start (timeout = 0, repeat = 0) {
+    nuv_timer_start(this.handle, timeout, repeat)
+  }
+
+  stop () {
+    nuv_timer_stop(this.handle)
+  }
+
+  again () {
+    nuv_timer_again(this.handle)
+  }
+
+  get repeat () {
+    return nuv_timer_get_repeat(this.handle)
+  }
+
+  set repeat (newRepeat) {
+    nuv_timer_set_repeat(this.handle, newRepeat)
+  }
+}
+
 exports.bindings = bindings
 exports.Server = Server
 exports.Client = Client
 exports.Udp = Udp
-
-exports.setTimeout = function setTimeout (fn, ms = 0, ...args) {
-  let handle = Buffer.alloc(sizeof_uv_tcp_t)
-  let timer = {
-    handle,
-    onTimeout () {
-      nuv_close(handle)
-      fn(...args)
-    }
-  }
-  nuv_timer_init(handle, timer)
-  nuv_timer_start(handle, ms, ms)
-  return timer
-}
-
-exports.clearTimeout = function clearTimeout ({ handle }) {
-  nuv_close(handle)
-}
-
-exports.setInterval = function setInterval (fn, ms = 0, ...args) {
-  let handle = Buffer.alloc(sizeof_uv_tcp_t)
-  let timer = {
-    handle,
-    onTimeout () {
-      fn(...args)
-    }
-  }
-  nuv_timer_init(handle, timer)
-  nuv_timer_start(handle, ms, ms)
-  return timer
-}
-
-exports.clearInterval = exports.clearTimeout
+exports.Timer = Timer
